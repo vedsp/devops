@@ -43,8 +43,8 @@ class TodoStore {
     return this.todos.find((t) => t.id === id) || null;
   }
 
-  create(title) {
-    const todo = { id: this.nextId++, title, completed: false, createdAt: new Date().toISOString() };
+  create(title, priority = 'medium') {
+    const todo = { id: this.nextId++, title, priority, completed: false, createdAt: new Date().toISOString() };
     this.todos.push(todo);
     this._save();
     return todo;
@@ -55,6 +55,7 @@ class TodoStore {
     if (!todo) return null;
     if (changes.title !== undefined) todo.title = changes.title;
     if (changes.completed !== undefined) todo.completed = changes.completed;
+    if (changes.priority !== undefined) todo.priority = changes.priority;
     this._save();
     return todo;
   }

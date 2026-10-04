@@ -4,6 +4,8 @@ const path = require('path');
 const { TodoStore } = require('./store');
 const { createMetrics } = require('./metrics');
 
+const PRIORITIES = ['low', 'medium', 'high'];
+
 function validateTitle(value) {
   if (typeof value !== 'string') return { error: 'title must be a string' };
   const title = value.trim();
@@ -38,7 +40,11 @@ function createApp(store = new TodoStore()) {
   app.post('/api/todos', (req, res) => {
     const { title, error } = validateTitle(req.body && req.body.title);
     if (error) return res.status(400).json({ error });
-    const todo = store.create(title);
+    const priority = req.body.priority === undefined ? 'medium' : req.body.priority;
+    if (!PRIORITIES.includes(priority)) {
+      return res.status(400).json({ error: 'priority must be low, medium or high' });
+    }
+    const todo = store.create(title, priority);
     metrics.todosCreated.inc();
     res.status(201).json(todo);
   });
@@ -63,6 +69,12 @@ function createApp(store = new TodoStore()) {
         return res.status(400).json({ error: 'completed must be true or false' });
       }
       changes.completed = body.completed;
+    }
+    if (body.priority !== undefined) {
+      if (!PRIORITIES.includes(body.priority)) {
+        return res.status(400).json({ error: 'priority must be low, medium or high' });
+      }
+      changes.priority = body.priority;
     }
     if (Object.keys(changes).length === 0) {
       return res.status(400).json({ error: 'nothing to update' });

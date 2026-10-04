@@ -1119,6 +1119,18 @@ body {
   color: var(--on-surface-variant);
 }
 
+To-Do List DevOps Project - Member Feature Tasks Page 3
+.add select {
+  padding: 0.7rem; font: inherit; color: inherit; background: transparent;
+  border: 1px solid var(--rule); border-radius: 4px;
+}
+.badge {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 0.1rem 0.5rem; border: 1px solid var(--rule); border-radius: 3px;
+  color: var(--muted);
+}
+.badge.high { color: var(--danger); border-color: var(--danger); }
+
 .section-sub-info {
   font-size: 0.75rem;
   color: var(--outline);

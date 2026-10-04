@@ -327,7 +327,7 @@
           <div class="workspace-left">
             
             <!-- Quick-Add Task Input Bar -->
-            <form id="add-form" class="quick-add-card" autocomplete="off">
+            <form id="add-form" class="quick-add-card add" autocomplete="off">
               <div class="quick-add-left">
                 <span class="material-symbols-outlined text-primary text-xl">add_circle</span>
                 <input 
@@ -341,6 +341,12 @@
               </div>
               <div class="quick-add-right">
                 <span id="char-counter" class="char-counter">0/200</span>
+                <label class="sr-only" for="new-priority">Priority</label>
+                <select id="new-priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
                 <button type="submit" id="add-btn" class="btn-quick-add" aria-label="Add task">
                   <span class="material-symbols-outlined text-base">arrow_forward</span>
                 </button>

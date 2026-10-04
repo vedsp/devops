@@ -48,6 +48,7 @@
   // Task Creation Elements
   const addForm = document.getElementById('add-form');
   const newTitleInput = document.getElementById('new-title');
+  const newPrioritySelect = document.getElementById('new-priority');
   const charCounter = document.getElementById('char-counter');
   const addBtn = document.getElementById('add-btn');
   const formError = document.getElementById('form-error');
@@ -444,6 +445,10 @@
           titleSpan.className = 'task-card-title';
           titleSpan.textContent = todo.title;
 
+          const priorityBadge = document.createElement('span');
+          priorityBadge.className = `badge ${todo.priority || 'medium'}`;
+          priorityBadge.textContent = todo.priority || 'medium';
+
           const metaDiv = document.createElement('div');
           metaDiv.className = 'task-card-meta';
 
@@ -459,7 +464,7 @@
           `;
 
           metaDiv.append(statusPill, timeSpan);
-          infoDiv.append(titleSpan, metaDiv);
+          infoDiv.append(titleSpan, priorityBadge, metaDiv);
 
           // Left block
           const leftBlock = document.createElement('div');
@@ -653,7 +658,10 @@
       try {
         const created = await api('/api/todos', {
           method: 'POST',
-          body: JSON.stringify({ title: rawVal }),
+          body: JSON.stringify({
+            title: rawVal,
+            priority: newPrioritySelect.value,
+          }),
         });
         todos.push(created);
         selectedTodoId = created.id;

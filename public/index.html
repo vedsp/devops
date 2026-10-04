@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="TaskFlow - Modern productivity dashboard with automated DevOps CI/CD pipeline, Prometheus metrics, and Grafana monitoring."/>
+  <title>TaskFlow &mdash; Focus Productivity Dashboard</title>
+
+  <!-- Google Fonts: EB Garamond (Headings) & Manrope (UI) & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-surface font-body text-on-surface">
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
+
+  <!-- Left Sidebar (Desktop Fixed / Mobile Drawer) -->
+  <aside id="sidebar" class="sidebar select-none">
+    <div class="sidebar-top">
+      <!-- App Brand Logo -->
+      <div class="brand-row">
+        <div class="brand-icon-box">
+          <span class="material-symbols-outlined text-xl">check_box</span>
+        </div>
+        <span class="brand-title font-headline">TaskFlow</span>
+      </div>
+
+      <!-- Workspace Selector Card -->
+      <div class="workspace-pill">
+        <div class="workspace-info">
+          <span class="workspace-badge">TF</span>
+          <div class="workspace-texts">
+            <span class="workspace-name">DevOps Workspace</span>
+            <span class="workspace-meta">Production v1.0</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-muted text-base">unfold_more</span>
+      </div>
+
+      <!-- Main Navigation -->
+      <nav class="sidebar-nav" aria-label="Main Navigation">
+        <button type="button" class="nav-item active" data-nav="today" aria-current="page">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl">today</span>
+            <span>Today</span>
+          </div>
+          <span class="nav-count active-count" id="nav-count-today">0</span>
+        </button>
+
+        <button type="button" class="nav-item" data-nav="active">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl">calendar_month</span>
+            <span>Active</span>
+          </div>
+          <span class="nav-count" id="nav-count-active">0</span>
+        </button>
+
+        <button type="button" class="nav-item" data-nav="completed">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl">check_circle</span>
+            <span>Completed</span>
+          </div>
+          <span class="nav-count" id="nav-count-completed">0</span>
+        </button>
+
+        <button type="button" class="nav-item" data-nav="all">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl">format_list_bulleted</span>
+            <span>All Tasks</span>
+          </div>
+          <span class="nav-count" id="nav-count-all">0</span>
+        </button>
+
+        <!-- Projects Header -->
+        <div class="nav-section-header">
+          <span class="nav-section-title">Projects</span>
+          <span class="material-symbols-outlined text-sm text-muted">folder</span>
+        </div>
+
+        <button type="button" class="nav-item project-item" data-project="all">
+          <div class="nav-item-left">
+            <span class="project-dot dot-work"></span>
+            <span>Work Hub</span>
+          </div>
+          <span class="project-badge" id="project-count-work">Work</span>
+        </button>
+
+        <button type="button" class="nav-item project-item" data-project="personal">
+          <div class="nav-item-left">
+            <span class="project-dot dot-personal"></span>
+            <span>Personal</span>
+          </div>
+          <span class="project-badge">Personal</span>
+        </button>
+
+        <button type="button" class="nav-item project-item" data-project="dev">
+          <div class="nav-item-left">
+            <span class="project-dot dot-dev"></span>
+            <span>Dev Sprint</span>
+          </div>
+          <span class="project-badge">CI/CD</span>
+        </button>
+
+        <!-- Operational Links Section -->
+        <div class="nav-section-header">
+          <span class="nav-section-title">DevOps Operations</span>
+        </div>
+
+        <a href="/health" target="_blank" rel="noopener noreferrer" class="nav-item op-link" title="Health Check JSON">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl text-success">health_and_safety</span>
+            <span>Health Check</span>
+          </div>
+          <span class="material-symbols-outlined text-xs text-muted">open_in_new</span>
+        </a>
+
+        <a href="/metrics" target="_blank" rel="noopener noreferrer" class="nav-item op-link" title="Prometheus Metrics Endpoint">
+          <div class="nav-item-left">
+            <span class="material-symbols-outlined text-xl text-primary">monitoring</span>
+            <span>Prometheus Metrics</span>
+          </div>
+          <span class="material-symbols-outlined text-xs text-muted">open_in_new</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom User Profile Card -->
+    <div class="sidebar-bottom">
+      <div class="user-card">
+        <div class="user-avatar-wrap">
+          <div class="user-avatar-initials">TF</div>
+          <span class="user-status-dot" id="sidebar-status-dot" title="Server Online"></span>
+        </div>
+        <div class="user-meta">
+          <span class="user-name">TaskFlow User</span>
+          <span class="user-role" id="sidebar-status-text">System Online</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Shell (Pushed right on desktop by 280px) -->
+  <div class="main-shell">
+    <!-- Top Fixed Navigation Bar -->
+    <header class="top-nav">
+      <div class="top-nav-left">
+        <!-- Mobile Menu Toggle Button -->
+        <button type="button" id="sidebar-toggle" class="btn-sidebar-toggle" aria-label="Toggle navigation menu">
+          <span class="material-symbols-outlined text-xl">menu</span>
+        </button>
+
+        <!-- Global Search Field -->
+        <div class="search-wrap">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input 
+            type="search" 
+            id="search-input" 
+            class="search-input" 
+            placeholder="Search tasks by title... (Press / to focus)"
+            aria-label="Search tasks"
+            autocomplete="off"
+          />
+          <button type="button" id="search-clear" class="btn-search-clear" hidden aria-label="Clear search">
+            <span class="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="top-nav-right">
+        <!-- Live Date Badge -->
+        <div class="date-badge">
+          <span class="material-symbols-outlined text-base">calendar_today</span>
+          <span id="nav-date-str">Today</span>
+        </div>
+
+        <!-- + New Task Primary Action Button -->
+        <button type="button" id="btn-focus-add" class="btn-new-task">
+          <span class="material-symbols-outlined text-base">add</span>
+          <span>New Task</span>
+          <kbd class="kbd-shortcut">N</kbd>
+        </button>
+
+        <!-- System Health Pill -->
+        <div id="system-status-pill" class="status-pill online" title="Service Health status">
+          <span class="pill-dot"></span>
+          <span id="system-status-label" class="pill-label">Online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Content -->
+    <main class="dashboard-main">
+      <div class="dashboard-container">
+        
+        <!-- Greeting & Streak Banner -->
+        <div class="greeting-banner">
+          <div class="greeting-row">
+            <div class="greeting-left">
+              <div class="greeting-date-row">
+                <span id="banner-day-date">Today</span>
+                <span class="date-sep-dot"></span>
+                <span class="date-highlight font-bold">In the zone</span>
+              </div>
+              <h1 class="font-display greeting-title" id="greeting-title">Good morning</h1>
+              <p class="greeting-subtitle">Stay organized and keep moving forward.</p>
+            </div>
+
+            <div class="greeting-right">
+              <!-- DevOps Pipeline Streak Pill -->
+              <div class="streak-pill">
+                <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+                <span class="font-bold text-primary">CI/CD Pipeline</span>
+                <span class="streak-sep">|</span>
+                <span class="streak-desc font-medium">18 Tests Passing</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters & View Switcher Strip -->
+          <div class="filters-strip">
+            <div class="filter-pills" role="tablist" aria-label="Task status filters">
+              <button type="button" class="filter-pill active" data-filter="all" role="tab" aria-selected="true">
+                <span>All Tasks</span>
+                <span class="pill-badge" id="filter-badge-all">0</span>
+              </button>
+              <button type="button" class="filter-pill" data-filter="active" role="tab" aria-selected="false">
+                <span class="dot-active"></span>
+                <span>Active</span>
+                <span class="pill-badge-subtle" id="filter-badge-active">0</span>
+              </button>
+              <button type="button" class="filter-pill" data-filter="done" role="tab" aria-selected="false">
+                <span class="dot-completed"></span>
+                <span>Completed</span>
+                <span class="pill-badge-subtle" id="filter-badge-completed">0</span>
+              </button>
+            </div>
+
+            <!-- Clear Completed Action (when completed tasks exist) -->
+            <button type="button" id="clear-completed-btn" class="btn-clear-completed" disabled title="Remove finished tasks">
+              <span class="material-symbols-outlined text-sm">delete_sweep</span>
+              <span>Clear Completed</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Cards Row (3 Cards matching reference) -->
+        <div class="metrics-grid">
+          <!-- Metric 1: Daily Velocity / Completion Rate with Radial Progress -->
+          <div class="metric-card">
+            <div class="metric-card-content">
+              <span class="metric-label">Daily Velocity</span>
+              <div class="metric-value-row">
+                <span class="font-display metric-big-number" id="metric-rate">0%</span>
+                <span class="metric-trend text-primary font-semibold">
+                  <span class="material-symbols-outlined text-sm">trending_up</span>
+                  <span>Rate</span>
+                </span>
+              </div>
+              <p class="metric-desc" id="metric-rate-desc">Keep the calm momentum.</p>
+            </div>
+            <!-- SVG Radial Progress Ring -->
+            <div class="radial-wrap" aria-hidden="true">
+              <svg class="radial-svg" viewBox="0 0 48 48">
+                <circle class="radial-bg" cx="24" cy="24" r="19" fill="none" stroke-width="4.5"></circle>
+                <circle class="radial-meter" id="radial-progress-circle" cx="24" cy="24" r="19" fill="none" stroke-width="4.5" stroke-dasharray="119.38" stroke-dashoffset="119.38"></circle>
+              </svg>
+              <span class="material-symbols-outlined radial-center-icon">bolt</span>
+            </div>
+          </div>
+
+          <!-- Metric 2: Active Tasks Count -->
+          <div class="metric-card">
+            <div class="metric-card-header">
+              <span class="metric-label">Active Tasks</span>
+              <span class="metric-tag bg-secondary">In Progress</span>
+            </div>
+            <div class="metric-value-row">
+              <span class="font-display metric-big-number" id="metric-active">0</span>
+              <span class="metric-sub-text">tasks left to do</span>
+            </div>
+            <div class="metric-bar-wrap">
+              <div class="metric-bar-bg">
+                <div class="metric-bar-fill" id="metric-active-fill" style="width: 0%;"></div>
+              </div>
+              <div class="metric-bar-labels">
+                <span>Pending execution</span>
+                <span class="font-semibold text-primary" id="metric-active-ratio">0 active</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metric 3: Priority & Status Breakdown -->
+          <div class="metric-card">
+            <div class="metric-card-header">
+              <span class="metric-label">Status Breakdown</span>
+              <span class="material-symbols-outlined text-muted text-base">pie_chart</span>
+            </div>
+            <div class="breakdown-grid">
+              <div class="breakdown-item">
+                <span class="breakdown-num text-on-surface" id="breakdown-total">0</span>
+                <span class="breakdown-label">Total</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-num text-primary" id="breakdown-active">0</span>
+                <span class="breakdown-label">Active</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-num text-success font-semibold" id="breakdown-done">0</span>
+                <span class="breakdown-label">Done</span>
+              </div>
+            </div>
+            <div class="breakdown-footer">
+              <span>Total scheduled</span>
+              <span class="font-bold text-on-surface" id="breakdown-summary">0 Tasks</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Workspace Split: Left (Tasks) & Right (Inspector) -->
+        <div class="workspace-grid">
+          
+          <!-- LEFT COLUMN: Tasks List & Quick-Add (~65%) -->
+          <div class="workspace-left">
+            
+            <!-- Quick-Add Task Input Bar -->
+            <form id="add-form" class="quick-add-card" autocomplete="off">
+              <div class="quick-add-left">
+                <span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+                <input 
+                  type="text" 
+                  id="new-title" 
+                  class="quick-add-input" 
+                  placeholder="Add task to Today... (Enter to save, max 200 chars)"
+                  maxlength="200"
+                  required
+                />
+              </div>
+              <div class="quick-add-right">
+                <span id="char-counter" class="char-counter">0/200</span>
+                <button type="submit" id="add-btn" class="btn-quick-add" aria-label="Add task">
+                  <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </button>
+              </div>
+            </form>
+            <p id="form-error" class="form-error-msg" hidden role="alert"></p>
+
+            <!-- Tasks Header Section -->
+            <div class="section-title-row">
+              <div class="section-title-left">
+                <span class="title-indicator-dot"></span>
+                <h2 class="font-headline section-title">Tasks &amp; Up Next</h2>
+                <span class="section-badge" id="section-task-count">0</span>
+              </div>
+              <span class="section-sub-info" id="section-sub-info">Active workspace</span>
+            </div>
+
+            <!-- Active Task Cards List -->
+            <ul id="active-list" class="tasks-container" role="list">
+              <!-- Dynamically populated via JS -->
+            </ul>
+
+            <!-- Empty State for Active Tasks -->
+            <div id="empty-state" class="empty-card" hidden>
+              <div class="empty-icon-wrap" id="empty-icon-wrap">
+                <span class="material-symbols-outlined text-3xl">task_alt</span>
+              </div>
+              <h3 class="font-headline empty-title" id="empty-title">You're all caught up!</h3>
+              <p class="empty-desc" id="empty-desc">No tasks in your list yet. Add a new task above to get started.</p>
+            </div>
+
+            <!-- Collapsible Completed Tasks Section -->
+            <div id="completed-section" class="completed-section">
+              <details class="completed-details" open>
+                <summary class="completed-summary">
+                  <div class="completed-summary-left">
+                    <span class="material-symbols-outlined chevron-icon">chevron_right</span>
+                    <span class="font-headline completed-title">Completed Tasks</span>
+                    <span class="completed-count-pill" id="completed-pill-count">0</span>
+                  </div>
+                </summary>
+                <div class="completed-tasks-list" id="completed-list">
+                  <!-- Dynamically populated via JS -->
+                </div>
+              </details>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: Task Inspector & Daily Timeline (~35%) -->
+          <div class="workspace-right">
+            
+            <!-- Task Inspector Panel -->
+            <div class="inspector-card" id="task-inspector">
+              <div class="inspector-header">
+                <span class="inspector-tag">Task Inspector</span>
+                <div class="inspector-header-actions">
+                  <button type="button" id="inspector-close-btn" class="btn-icon-subtle" title="Deselect task" aria-label="Close inspector">
+                    <span class="material-symbols-outlined text-base">close</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inspector Active Task View -->
+              <div id="inspector-content" class="inspector-body">
+                <div class="inspector-badge-row">
+                  <span class="inspector-status-badge" id="inspector-status-badge">Active Task</span>
+                  <span class="inspector-id-badge" id="inspector-id-badge">#1</span>
+                </div>
+
+                <h3 class="font-headline inspector-task-title" id="inspector-title">Select a task</h3>
+
+                <!-- Properties Grid -->
+                <div class="inspector-props-grid">
+                  <div class="prop-item">
+                    <span class="material-symbols-outlined prop-icon">schedule</span>
+                    <span class="prop-text" id="inspector-created-at">--</span>
+                  </div>
+                  <div class="prop-item">
+                    <span class="material-symbols-outlined prop-icon">category</span>
+                    <span class="prop-text">DevOps Project</span>
+                  </div>
+                  <div class="prop-item">
+                    <span class="material-symbols-outlined prop-icon">done_all</span>
+                    <span class="prop-text" id="inspector-status-text">Pending</span>
+                  </div>
+                  <div class="prop-item">
+                    <span class="material-symbols-outlined prop-icon">person</span>
+                    <span class="prop-text">Assignee: You</span>
+                  </div>
+                </div>
+
+                <!-- Inline Title Edit Field -->
+                <div class="inspector-edit-section">
+                  <label class="inspector-edit-label" for="inspector-edit-input">Rename Task</label>
+                  <div class="inspector-edit-row">
+                    <input type="text" id="inspector-edit-input" class="inspector-input" maxlength="200" placeholder="New title..."/>
+                    <button type="button" id="inspector-save-title-btn" class="btn-inspector-save">Save</button>
+                  </div>
+                </div>
+
+                <!-- Inspector Action Buttons -->
+                <div class="inspector-actions-row">
+                  <button type="button" id="inspector-toggle-btn" class="btn-inspector-primary">
+                    <span class="material-symbols-outlined text-base" id="inspector-toggle-icon">check_circle</span>
+                    <span id="inspector-toggle-text">Mark Completed</span>
+                  </button>
+                  <button type="button" id="inspector-delete-btn" class="btn-inspector-danger" title="Delete task" aria-label="Delete task">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inspector Empty Placeholder -->
+              <div id="inspector-empty" class="inspector-empty-placeholder" hidden>
+                <span class="material-symbols-outlined text-3xl text-muted">touch_app</span>
+                <p class="inspector-empty-text">Select any task card from your list to view its properties and perform actions.</p>
+              </div>
+            </div>
+
+            <!-- Daily Progress Card -->
+            <div class="daily-progress-card">
+              <div class="daily-progress-header">
+                <span class="material-symbols-outlined text-primary text-base">checklist</span>
+                <span class="font-headline text-lg font-semibold text-on-surface">Today's Progress</span>
+              </div>
+              <div class="progress-details-row">
+                <span class="progress-percent-big font-display" id="daily-progress-percent">0%</span>
+                <span class="progress-ratio text-muted" id="daily-progress-ratio">0 of 0 tasks completed</span>
+              </div>
+              <div class="daily-progress-track">
+                <div class="daily-progress-fill" id="daily-progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Inspiring Insight / DevOps Status Card -->
+            <div class="insight-card">
+              <div class="insight-header">
+                <span class="material-symbols-outlined text-primary text-lg">format_quote</span>
+                <span class="insight-label">Productivity Insight</span>
+              </div>
+              <p class="font-headline insight-quote">
+                &ldquo;Action is the foundational key to all success.&rdquo;
+              </p>
+              <div class="insight-footer">
+                <span class="insight-author">&mdash; Pablo Picasso</span>
+                <span class="insight-focus-badge">
+                  <span class="material-symbols-outlined text-xs">auto_awesome</span> Focus Mode
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Clear Completed Confirmation Modal -->
+  <div id="confirm-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-icon-wrap" aria-hidden="true">
+        <span class="material-symbols-outlined text-2xl text-error">delete_forever</span>
+      </div>
+      <h3 id="modal-title" class="font-headline modal-title">Clear Completed Tasks?</h3>
+      <p id="modal-desc" class="modal-desc">This action will permanently delete all finished tasks from your workspace.</p>
+      <div class="modal-actions">
+        <button type="button" id="modal-cancel-btn" class="btn-modal-cancel">Cancel</button>
+        <button type="button" id="modal-confirm-btn" class="btn-modal-confirm">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

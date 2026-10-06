@@ -80,8 +80,13 @@ function createApp(store = new TodoStore()) {
       return res.status(400).json({ error: 'nothing to update' });
     }
 
+    const existing = store.get(id);
+    const wasCompleted = existing ? existing.completed : false;
     const todo = store.update(id, changes);
     if (!todo) return res.status(404).json({ error: 'todo not found' });
+    if (changes.completed === true && !wasCompleted) {
+      metrics.todosCompleted.inc();
+    }
     res.json(todo);
   });
 

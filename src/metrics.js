@@ -19,6 +19,12 @@ function createMetrics(store) {
     registers: [register],
   });
 
+  const todosCompleted = new client.Counter({
+    name: 'todos_completed_total',
+    help: 'Total number of todos marked as completed since the app started',
+    registers: [register],
+  });
+
   new client.Gauge({
     name: 'todos_current',
     help: 'Current number of todos by status',
@@ -41,7 +47,7 @@ function createMetrics(store) {
     next();
   }
 
-  return { register, middleware, todosCreated };
+  return { register, middleware, todosCreated, todosCompleted };
 }
 
 module.exports = { createMetrics };

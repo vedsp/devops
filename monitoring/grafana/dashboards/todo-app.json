@@ -67,6 +67,12 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [{ "refId": "A", "expr": "rate(process_cpu_seconds_total{job=\"todo-app\"}[1m])", "legendFormat": "cpu cores" }],
       "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] }
+    },
+    {
+      "id": 10, "type": "stat", "title": "Todos completed (total)",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 21 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "todos_completed_total" }]
     }
   ]
 }
